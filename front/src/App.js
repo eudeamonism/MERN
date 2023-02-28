@@ -11,14 +11,14 @@ function App() {
 	]);
 
 	//commented out: This opposite prop chain. We take useState constant and use the concat array method instead of push so no mutation takes place. We pass handlers parameter of newGoal.
-    //This ensures order of execution
-    //spread operator actually works as alternative
+	//This ensures order of execution
+	//spread operator actually works as alternative
 	const addNewGoalHandler = (newGoal) => {
 		// setCoarseGoals(coarseGoals.concat(newGoal))
-		setCoarseGoals((prevCourseGoals) => {
-            return prevCourseGoals.concat(newGoal);
-            // return [...prevCourseGoals, newGoal]
-		});
+		setCoarseGoals(
+			(prevCourseGoals) => prevCourseGoals.concat(newGoal)
+			// return [...prevCourseGoals, newGoal]
+		);
 	};
 
 	return (
