@@ -1,0 +1,15 @@
+.coarse-goals h2 {
+	text-align: center;
+}
+
+.goal-list {
+	list-style: decimal-leading-zero;
+	padding: 0;
+	margin: 2rem;
+}
+.goal-list li {
+	list-style: none;
+	border: 1px solid #ccc;
+	padding: 1rem;
+	margin: 1rem 0;
+}
