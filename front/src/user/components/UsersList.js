@@ -5,11 +5,12 @@ import UserItem from './UserItem';
 
 function UsersList(props) {
 	if (props.items.length === 0) {
-		return <div className={classes.center}>No users found.</div>;
+		return <h1 className={classes.center}>No users found.</h1>;
 	}
 //using map method for props.items; we simply pass a parameter where we get more attributes for received data.
+//Through props.items, we receive a ITEMS array.
 	return (
-		<>
+		<ul className={classes['users-list']}>
 			{props.items.map((user) => (
 				<UserItem
 					key={user.id}
@@ -19,7 +20,7 @@ function UsersList(props) {
                     placeCount={user.places}
 				/>
 			))}
-		</>
+		</ul>
 	);
 }
 

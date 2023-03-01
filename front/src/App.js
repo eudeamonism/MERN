@@ -18,6 +18,11 @@ const ourRouter = createBrowserRouter([
 	{
 		path: '/places',
         element: <Places />,
+        children: [
+            {
+            path:'/places/:placesId'
+            }
+        ]
 	},
 ]);
 
