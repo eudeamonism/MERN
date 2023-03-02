@@ -1,15 +1,9 @@
 import React from 'react';
-import {
-	createBrowserRouter,
-	RouterProvider,
-	Route,
-	Link,
-} from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import Users from './user/pages/Users';
-import Places from './places/pages/Places';
 import Root from './shared/components/Navigation/Root';
-
+import UserPlaces from './places/pages/UserPlaces';
 
 //Updated React Router Dom; We use function with parameters of an array filled with objects. Each object represents a route.
 const ourRouter = createBrowserRouter([
@@ -22,16 +16,8 @@ const ourRouter = createBrowserRouter([
 				element: <Users />,
 			},
 			{
-				path: '/places',
-				element: <Places />,
-				children: [
-					{
-						path: '/places/:placesId',
-					},
-					{
-						path: '/places/new',
-					},
-				],
+				path: '/:userId/places',
+				element: <UserPlaces />,
 			},
 		],
 	},
