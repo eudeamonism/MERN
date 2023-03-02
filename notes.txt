@@ -1,0 +1,25 @@
+REACT PORTALS
+Why Portal?
+Because, if nested it can be lost. It should render at the top.
+
+What do I do to index.html?
+Add a new div above root, same info other than id. The name is up to me. This will be where we will portal render to.
+
+What next?
+Open component that contains what you want to render.
+Store JSX content in a constant. But, you will return something different than before.
+
+Next, import something in that component.
+-Make sure you have the
+--> npm i react-dom
+--> import ReactDOM from 'react-dom';
+
+ex:
+
+function SideDrawer(props) {
+	const content = <aside className="side-drawer">{props.children}</aside>;
+
+	return ReactDOM.createPortal(content, document.getElementById('drawer-hook'));
+}
+
+export default SideDrawer;

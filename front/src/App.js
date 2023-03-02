@@ -28,6 +28,9 @@ const ourRouter = createBrowserRouter([
 					{
 						path: '/places/:placesId',
 					},
+					{
+						path: '/places/new',
+					},
 				],
 			},
 		],
