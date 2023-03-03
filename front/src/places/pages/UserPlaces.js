@@ -1,7 +1,6 @@
 import React from 'react';
 import PlaceList from '../components/PlaceList';
-
-
+import { useParams } from 'react-router-dom';
 const DUMMY_PLACES = [
 	{
 		id: 'p1',
@@ -35,7 +34,12 @@ const DUMMY_PLACES = [
 
 //This houses DB where we will pass DUMMY data.
 function UserPlaces() {
-	return <PlaceList items={DUMMY_PLACES} />;
+    //We use this to get things with a colon: /:id/places
+    const userId = useParams().userId;
+    const loadedPlaces = DUMMY_PLACES.filter(pl => pl.creatorId === userId)
+
+
+	return <PlaceList items={loadedPlaces} />;
 }
 
 export default UserPlaces;

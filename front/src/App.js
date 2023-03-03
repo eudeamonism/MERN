@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Users from './user/pages/Users';
 import Root from './shared/components/Navigation/Root';
 import UserPlaces from './places/pages/UserPlaces';
+import NewPlace from './places/pages/NewPlace'
 
 //Updated React Router Dom; We use function with parameters of an array filled with objects. Each object represents a route.
 const ourRouter = createBrowserRouter([
@@ -18,6 +19,10 @@ const ourRouter = createBrowserRouter([
 			{
 				path: '/:userId/places',
 				element: <UserPlaces />,
+			},
+			{
+				path: '/:userId/add',
+				element: <NewPlace />,
 			},
 		],
 	},
