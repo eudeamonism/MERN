@@ -26,3 +26,13 @@ export default SideDrawer;
 
 
 USEREDUCER
+Key Ideas
+-->const soemReducer is outside of the component function
+--> - It takes(state, action)
+--> -Switch case was easy
+
+--> useReducer [RIGHT SIDE] (const someReducer, initial state)
+--> [LEFT SIDE] useReducer [currentState, dispatch]
+
+--> dispatch({ type: 'ALL CAPS', val: event.target.value})
+--> we also added validators but this is difficult

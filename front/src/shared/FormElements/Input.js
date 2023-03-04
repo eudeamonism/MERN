@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, useEffect } from 'react';
 import './Input.css';
 import { validate } from '../../shared/util/validators';
 
@@ -28,6 +28,14 @@ const Input = (props) => {
 		isValid: false,
 		isTouched: false,
 	});
+
+	//props as a dependency is never a good idea, infinte loop. Instead we use object destructuring on the props.
+    //We take id and isValid from props, while taking value and isValid from inputState.
+	const { id, onInput } = props;
+	const { value, isValid } = inputState;
+	useEffect(() => {
+		onInput(id, value, isValid);
+	}, [id, value, isValid, onInput]);
 
 	const changeHandler = (event) => {
 		dispatch({
