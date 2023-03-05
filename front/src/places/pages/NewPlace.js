@@ -1,50 +1,20 @@
-import React, { useCallback, useReducer } from 'react';
+import Input from '../../shared/FormElements/Input';
 import Button from '../../shared/FormElements/Button';
 import {
 	VALIDATOR_REQUIRE,
 	VALIDATOR_MINLENGTH,
 } from '../../shared/util/validators';
+//Custom Hook
+import { useForm } from '../../shared/hooks/form-hooks';
 
-import Input from '../../shared/FormElements/Input';
-import './NewPlace.css';
-
-const formReducer = (state, action) => {
-	//actions via switch
-	switch (action.type) {
-		case 'INPUT_CHANGE':
-			let formIsValid = true;
-			// for( const whatEver in state.inputs) where state.inputs is the initial state object we set
-			for (const inputId in state.inputs) {
-				//is the <Input id="?"> === to the <Input action.id="?"> ? where action is the dispatch update function
-				if (inputId === action.inputId) {
-					formIsValid = formIsValid && action.isValid;
-				} else {
-					//else means no action for the id, no update has taken place. Therefore, formIsValid = that the past state true is true and that state.inputs takes me to id where the key value is what it was before either description or title and that is set to its default value of isValid which in the beginning would be false
-					formIsValid = formIsValid && state.inputs[inputId].isValid;
-				}
-			}
-			//This updates. We take initial state with ...state. Next, we are looking at input which is something we add.
-			return {
-				...state,
-				inputs: {
-					...state.inputs,
-					[action.inputId]: { value: action.value, isValid: action.isValid },
-				},
-				isValid: formIsValid,
-			};
-
-		default:
-			return state;
-	}
-};
+import './PlaceForm.css';
 
 const NewPlace = () => {
-	//Multiple states therefore we will use useReducer()
-	//title is actually a possible value of the key 'id'
-	//Right side:initial state which is updated after dispatch
-
-	const [formState, dispatch] = useReducer(formReducer, {
-		inputs: {
+	//Custom Hook and pass initial state values (right side): Takes two arguments: initial state, and validity which we pass false only.
+    //we are going to intercept the two left arguments from our custom hook, array destructuring.
+    //We do this without having to call props!!
+	const [formState, inputHandler] = useForm(
+		{
 			title: {
 				value: '',
 				isValid: false,
@@ -53,28 +23,20 @@ const NewPlace = () => {
 				value: '',
 				isValid: false,
 			},
+			address: {
+				value: '',
+				isValid: false,
+			},
 		},
-		isValid: false,
-	});
+		false
+	);
 
-	//Could lead to an infinte loop. So, we need to useCallback hook to prevent this function from rerendering.
-	//It does take dependencies like useEffect, but in this instance we leave it blank so IT WILL NOT RERUN.
 
-	const inputHandler = useCallback((id, value, isValid) => {
-		//We simply update two keys while adding a new key, inputId to the initial state which may alter id key
-		//this works for both cases: description id or title id for Input element properties
-		dispatch({
-			type: 'INPUT_CHANGE',
-			value: value,
-			isValid: isValid,
-			inputId: id,
-		});
-	}, []);
-    //To send this collected data to the server when we have server.
+	//To send this collected data to the server when we have server.
 	const placeSubmitHandler = (event) => {
-        event.preventDefault();
+		event.preventDefault();
 
-        console.log(formState.inputs)
+		console.log(formState.inputs);
 	};
 
 	return (

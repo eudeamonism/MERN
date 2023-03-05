@@ -24,9 +24,9 @@ const Input = (props) => {
 	//useReducer takes a reducer and an initial state
 	//Left side is the current updated state, and dispatch function to update state
 	const [inputState, dispatch] = useReducer(inputReducer, {
-		value: '',
-		isValid: false,
+		value: props.initialValue || '',
 		isTouched: false,
+		isValid: props.initialValid || false,
 	});
 
 	//props as a dependency is never a good idea, infinte loop. Instead we use object destructuring on the props.

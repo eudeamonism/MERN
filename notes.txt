@@ -36,3 +36,15 @@ Key Ideas
 
 --> dispatch({ type: 'ALL CAPS', val: event.target.value})
 --> we also added validators but this is difficult
+
+REACT CUSTOM HOOKS
+Key Ideas
+--> House all State such as useCallback and useReducer
+--> someReducer const variable lives outside of the function
+--> --this receives SOME_CHANGE via if logic (action.type)
+--> --which then returns info for updated useReduce state
+--> export const useSomething = (X, Y)
+--> --Where X and Y are parameters that are expectign default values or validators from componets that use this hook
+--> for someHandler inside the function we call useCallback to avoid an infinite loop.
+--> --In such hook, we call dispatch function with type that is received by const variable which parses so it can update new state.
+--> return via an array the reusuable variables and functions such where the someState from useReducer and the someHandler from handler function.
