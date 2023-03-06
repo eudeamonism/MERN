@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Input from '../../shared/FormElements/Input';
 import Button from '../../shared/FormElements/Button';
@@ -7,7 +7,7 @@ import {
 	VALIDATOR_MINLENGTH,
 } from '../../shared/util/validators';
 import { useForm } from '../../shared/hooks/form-hooks';
-
+import Card from '../../shared/components/UIElements/Card'
 import './PlaceForm.css';
 
 const DUMMY_PLACES = [
@@ -42,35 +42,69 @@ const DUMMY_PLACES = [
 ];
 
 const UpdatePlace = () => {
+	const [isLoading, setIsLoading] = useState(true);
+
 	const placeId = useParams().placeId;
+
+	const [formState, inputHandler, setFormData] = useForm(
+		{
+			title: {
+				value: '',
+				isValid: false,
+			},
+			description: {
+				value: '',
+				isValid: false,
+			},
+		},
+		false
+	);
 
 	const identifiedPlace = DUMMY_PLACES.find((p) => p.id === placeId);
 	// We placed it below database so we can access from it.
 
-	const [formState, inputHandler] = useForm(
-		{
-			title: {
-				value: identifiedPlace.title,
-				isValid: true,
-			},
-			description: {
-				value: identifiedPlace.description,
-				isValid: true,
-			},
-		},
-		true
-	);
+	useEffect(() => {
+		if (identifiedPlace) {
+			//Checking data to see if we have variables below.
+			setFormData(
+				{
+					title: {
+						value: identifiedPlace.title,
+						isValid: true,
+					},
+					description: {
+						value: identifiedPlace.description,
+						isValid: true,
+					},
+				},
+				true
+			);
+		}
+		setIsLoading(false);
+	}, [setFormData, identifiedPlace]);
 
 	const placeUpdateSubmitHandler = (event) => {
-        event.preventDefault();
-        console.log(formState.inputs)
+		event.preventDefault();
+		console.log(formState.inputs);
 	};
 
-	if (!identifiedPlace) {
-		return <h2 className="center">Could not find place!</h2>;
+if (!identifiedPlace) {
+	return (
+		<div className="center">
+			<Card>
+				<h2>Could not find place!</h2>
+			</Card>
+		</div>
+	);
+}
+
+	if (isLoading) {
+		return <h2 className="center">Loading...</h2>;
 	}
 	// formState.inputs.title.value
 	//formState is what passes data from custom Hook to here where it holds the initial state of inputs. title is what we want so we access it's value property
+
+
 	return (
 		<form className="place-form" onSubmit={placeUpdateSubmitHandler}>
 			<Input

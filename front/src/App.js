@@ -6,6 +6,7 @@ import Root from './shared/components/Navigation/Root';
 import UserPlaces from './places/pages/UserPlaces';
 import NewPlace from './places/pages/NewPlace';
 import UpdatePlace from './places/pages/UpdatePlace'
+import Auth from './user/pages/Auth'
 
 //Updated React Router Dom; We use function with parameters of an array filled with objects. Each object represents a route.
 const ourRouter = createBrowserRouter([
@@ -28,6 +29,10 @@ const ourRouter = createBrowserRouter([
 			{
 				path: '/places/:placeId',
 				element: <UpdatePlace />,
+			},
+			{
+				path: '/auth',
+				element: <Auth />,
 			},
 		],
 	},
