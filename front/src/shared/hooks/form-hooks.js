@@ -8,7 +8,11 @@ const formReducer = (state, action) => {
 		case 'INPUT_CHANGE':
 			let formIsValid = true;
 			// for( const whatEver in state.inputs) where state.inputs is the initial state object we set
-			for (const inputId in state.inputs) {
+            for (const inputId in state.inputs) {
+                //checking for undefined. Continue skips this iteration and moves to next one.
+                if (!state.inputs[inputId]) {
+                    continue;
+                }
 				//is the <Input id="?"> === to the <Input action.id="?"> ? where action is the dispatch update function
 				if (inputId === action.inputId) {
 					formIsValid = formIsValid && action.isValid;

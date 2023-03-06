@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import Card from '../../shared/components/UIElements/Card';
 import Input from '../../shared/FormElements/Input';
@@ -7,11 +7,13 @@ import { useForm } from '../../shared/hooks/form-hooks';
 import {
 	VALIDATOR_EMAIL,
 	VALIDATOR_MINLENGTH,
+	VALIDATOR_REQUIRE,
 } from '../../shared/util/validators';
 import './Auth.css';
 
 const Auth = () => {
-	const [formState, inputHandler] = useForm(
+	const [isLogin, setIsLogin] = useState(true);
+	const [formState, inputHandler, setFormData] = useForm(
 		{
 			email: {
 				value: '',
@@ -25,6 +27,31 @@ const Auth = () => {
 		false
 	);
 
+	const switchModeHandler = () => {
+		//In signup mode however the useState will switch to logged in mode. Therefore, we have to update name to undefined to drop it.
+		if (!isLogin) {
+			setFormData(
+                {
+                    ...formState.inputs,
+					name: undefined,
+				},
+				formState.inputs.email.isValid && formState.inputs.password.isValid
+			);
+		} else {
+			setFormData(
+				{
+					...formState.inputs,
+					name: {
+						value: '',
+						isValid: false,
+					},
+				},
+				false
+			);
+		}
+		setIsLogin((prevMode) => !prevMode);
+	};
+
 	const authSubmitHandler = (event) => {
 		event.preventDefault();
 
@@ -35,6 +62,17 @@ const Auth = () => {
 			<h2>Login Required</h2>
 			<hr />
 			<form onSubmit={authSubmitHandler}>
+				{!isLogin && (
+					<Input
+						element="input"
+						id="name"
+						type="text"
+						label="Your Name"
+						validators={[VALIDATOR_REQUIRE()]}
+						errorText="Please enter a name"
+						onInput={inputHandler}
+					/>
+				)}
 				<Input
 					id="email"
 					element="input"
@@ -53,8 +91,13 @@ const Auth = () => {
 					errorText="Please enter a valid password"
 					onInput={inputHandler}
 				/>
-				<Button disabled={!formState.isValid}>LOGIN</Button>
+				<Button disabled={!formState.isValid}>
+					{isLogin ? 'LOGIN' : 'SIGNUP'}
+				</Button>
 			</form>
+			<Button inverse onClick={switchModeHandler}>
+				SWITCH TO {isLogin ? 'SIGNUP' : 'LOGIN'}
+			</Button>
 		</Card>
 	);
 };
