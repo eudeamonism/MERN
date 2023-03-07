@@ -48,3 +48,27 @@ Key Ideas
 --> for someHandler inside the function we call useCallback to avoid an infinite loop.
 --> --In such hook, we call dispatch function with type that is received by const variable which parses so it can update new state.
 --> return via an array the reusuable variables and functions such where the someState from useReducer and the someHandler from handler function.
+
+CONTEXT
+--Allows you to pass things without props.
+--> context folder
+--> import {createContext} from 'react'
+-->We export const SomeContext = createContext()
+--> --Inside, we pass variables and functions that are imported as essentialyl as props
+--> Anything that uses our exported const will also update with such information upon udpate.
+--> We import our exported const somewhere with hierarchy such as app.JSX ; Then, we wrap the import as you might a card in all the JSX.
+----> <SomeContext.Provider></SomeContext.Provider>
+--include .Provider
+
+-->We attribute a value, attribute, in <AuthContext.Provider value={} />
+
+--> Inside App.js we also call import React, {useState, useCallback} from 'react
+--> we create a variable login which = useCallback(() => {})
+--so it doesn't rerender uneccessarily. Don't forget dependency array, which is empty now: []. login acts just like a handlerFunction, where setState to true. Then we repeat the same for logout and set to false. Recall how someContext has default variables and functions already which we are redefining with these functions.
+-->we pass handlers and state in our provider which is connected to the whole application
+
+--import React, {useContext} from 'react'
+const auth = useContext(someContext)
+--so we can say if auth.isLoggedIn is true than render JSX
+
+

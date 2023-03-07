@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import Card from '../../shared/components/UIElements/Card';
+import { AuthContext } from '../../shared/context/auth-context';
 import Input from '../../shared/FormElements/Input';
 import Button from '../../shared/FormElements/Button';
 import { useForm } from '../../shared/hooks/form-hooks';
@@ -12,6 +14,8 @@ import {
 import './Auth.css';
 
 const Auth = () => {
+    const navigate = useNavigate();
+	const auth = useContext(AuthContext);
 	const [isLogin, setIsLogin] = useState(true);
 	const [formState, inputHandler, setFormData] = useForm(
 		{
@@ -31,8 +35,8 @@ const Auth = () => {
 		//In signup mode however the useState will switch to logged in mode. Therefore, we have to update name to undefined to drop it.
 		if (!isLogin) {
 			setFormData(
-                {
-                    ...formState.inputs,
+				{
+					...formState.inputs,
 					name: undefined,
 				},
 				formState.inputs.email.isValid && formState.inputs.password.isValid
@@ -56,6 +60,8 @@ const Auth = () => {
 		event.preventDefault();
 
 		console.log(formState.inputs);
+		auth.login();
+		navigate('/');
 	};
 	return (
 		<Card className="authentication">
