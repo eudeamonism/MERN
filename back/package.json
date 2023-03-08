@@ -2,11 +2,11 @@
 	"name": "back",
 	"version": "1.0.0",
 	"description": "Backend for MERN stack",
-	"main": "server.js",
+	"main": "app.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"start": "cross-env NODE_ENV=development nodemon server.js",
-		"start:prod": "cross-env NODE_ENV=production nodemon server.js"
+		"start": "cross-env NODE_ENV=development nodemon app.js",
+		"start:prod": "cross-env NODE_ENV=production nodemon app.js"
 	},
 	"author": "eudeamonism",
 	"license": "ISC",
