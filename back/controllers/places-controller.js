@@ -1,7 +1,7 @@
 const HttpError = require('../models/http-error');
 const { v4: uuidv4 } = require('uuid');
 
-const DUMMY_PLACES = [
+let DUMMY_PLACES = [
 	{
 		id: 'p1',
 		title: 'Empire State Building',
@@ -29,22 +29,23 @@ const getPlaceById = (req, res, next) => {
 	res.json({ place }); // => { place } => { place: place }
 };
 
-const getPlaceByUserId = (req, res, next) => {
+const getPlacesByUserId = (req, res, next) => {
 	const userId = req.params.uid;
 
-	const place = DUMMY_PLACES.find((p) => {
+    //filter finds more than one which matches criteria where as find only returns the first one
+	const places = DUMMY_PLACES.filter((p) => {
 		return p.creator === userId;
 	});
 
-	if (!place) {
+	if (!places || places.length === 0) {
 		const error = new HttpError(
-			'Could not find a place for provided user id.',
+			'Could not find any places for provided user id.',
 			404
 		);
 		return next(error);
 	}
 
-	res.json({ place });
+	res.json({ places });
 };
 
 const createPlace = (req, res, next) => {
@@ -79,7 +80,7 @@ const updatePlace = (req, res, next) => {
 	const updatedPlace = { ...DUMMY_PLACES.find((p) => p.id === placeId) };
 	//retrieve the location of data in an array
     const placeIndex = DUMMY_PLACES.findIndex((p) => p.id === placeId);
-    
+
 	if (title) {
 		//set db tile to equal that of the title inputed in body
 		updatedPlace.title = title;
@@ -95,10 +96,18 @@ const updatePlace = (req, res, next) => {
 	res.status(200).json({ place: updatedPlace });
 };
 
-const deletePlace = (req, res, next) => {};
+const deletePlace = (req, res, next) => {
+    //retrieve id in url
+    const placeId = req.params.pid;
+
+    //create new DB where everything other than req.id is there
+    DUMMY_PLACES = DUMMY_PLACES.filter(p => p.id !== placeId);
+
+    res.status(200).json({ message: 'Deleted place.'});
+};
 
 exports.getPlaceById = getPlaceById;
-exports.getPlaceByUserId = getPlaceByUserId;
+exports.getPlacesByUserId = getPlacesByUserId;
 exports.createPlace = createPlace;
 exports.deletePlace = deletePlace;
 exports.updatePlace = updatePlace;

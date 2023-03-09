@@ -8,7 +8,7 @@ const router = express.Router();
 //if we had a route instead like /user, such would need to be before this or it would never be reached.
 router.get('/:pid', placesControllers.getPlaceById);
 
-router.get('/user/:uid', placesControllers.getPlaceByUserId);
+router.get('/user/:uid', placesControllers.getPlacesByUserId);
 
 router.post('/', placesControllers.createPlace)
 
