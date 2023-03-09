@@ -1,5 +1,5 @@
 const HttpError = require('../models/http-error');
-const { v4: uuidv4 } = require('uuid')
+const { v4: uuidv4 } = require('uuid');
 
 const DUMMY_PLACES = [
 	{
@@ -48,12 +48,12 @@ const getPlaceByUserId = (req, res, next) => {
 };
 
 const createPlace = (req, res, next) => {
-    //Object Destructuring to pull out keys from the request body
+	//Object Destructuring to pull out keys from the request body
 	const { title, description, coordinates, address, creator } = req.body;
 
-    //create a variable to hold pulled data from request body
-    const createdPlace = {
-        id: uuidv4(),
+	//create a variable to hold pulled data from request body
+	const createdPlace = {
+		id: uuidv4(),
 		title,
 		description,
 		location: coordinates,
@@ -61,13 +61,44 @@ const createPlace = (req, res, next) => {
 		creator,
 	};
 
-    //place pulled data from request body into a database
-    DUMMY_PLACES.push(createdPlace);
+	//place pulled data from request body into a database
+	DUMMY_PLACES.push(createdPlace);
 
-    //send response
-    res.status(201).json({place: createdPlace})
+	//send response
+	res.status(201).json({ place: createdPlace });
 };
+
+const updatePlace = (req, res, next) => {
+	//Destructure to only get title and description
+	const { title, description } = req.body;
+
+	//Access the parameters in the url
+	const placeId = req.params.pid;
+
+	//make sure req.body's id is that of DB id
+	const updatedPlace = { ...DUMMY_PLACES.find((p) => p.id === placeId) };
+	//retrieve the location of data in an array
+    const placeIndex = DUMMY_PLACES.findIndex((p) => p.id === placeId);
+    
+	if (title) {
+		//set db tile to equal that of the title inputed in body
+		updatedPlace.title = title;
+	}
+	if (description) {
+		updatedPlace.description = description;
+	}
+
+	//located data in array by index now replace that with updatedPlace which has an updated title and description.
+	DUMMY_PLACES[placeIndex] = updatedPlace;
+
+	//reveal updated data in the key of place
+	res.status(200).json({ place: updatedPlace });
+};
+
+const deletePlace = (req, res, next) => {};
 
 exports.getPlaceById = getPlaceById;
 exports.getPlaceByUserId = getPlaceByUserId;
 exports.createPlace = createPlace;
+exports.deletePlace = deletePlace;
+exports.updatePlace = updatePlace;
