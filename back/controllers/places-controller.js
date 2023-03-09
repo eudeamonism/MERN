@@ -46,5 +46,26 @@ const getPlaceByUserId = (req, res, next) => {
 	res.json({ place });
 };
 
+const createPlace = (req, res, next) => {
+    //Object Destructuring to pull out keys from the request body
+	const { title, description, coordinates, address, creator } = req.body;
+
+    //create a variable to hold pulled data from request body
+	const createdPlace = {
+		title,
+		description,
+		location: coordinates,
+		address,
+		creator,
+	};
+
+    //place pulled data from request body into a database
+    DUMMY_PLACES.push(createdPlace);
+
+    //send response
+    res.status(201).json({place: createdPlace})
+};
+
 exports.getPlaceById = getPlaceById;
 exports.getPlaceByUserId = getPlaceByUserId;
+exports.createPlace = createPlace;

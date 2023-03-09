@@ -6,7 +6,9 @@ const placesRoutes = require('./routes/places-routes');
 koopa = process.env.PORT;
 const app = express();
 
-// app.use(bodyParser.urlencoded({ extended: false }));
+const bodyParser = require('body-parser');
+
+app.use(bodyParser.json());
 
 //Route: we applied a new route to our placeRoutes
 app.use('/api/places', placesRoutes);
