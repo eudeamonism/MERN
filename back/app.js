@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 
 const placesRoutes = require('./routes/places-routes');
+
+const usersRoutes = require('./routes/users-routes');
 const HttpError = require('./models/http-error');
 
 koopa = process.env.PORT;
@@ -13,6 +15,7 @@ app.use(bodyParser.json());
 
 //Route: we applied a new route to our placeRoutes
 app.use('/api/places', placesRoutes);
+app.use('/api/users', usersRoutes);
 
 //Normal --POSTMAN-- Error Handling Middleware
 app.use((req, res, next) => {
