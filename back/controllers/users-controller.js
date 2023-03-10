@@ -18,6 +18,14 @@ const getUsers = (req, res, next) => {
 const signup = (req, res, next) => {
 	//Pull data, destructure, from req.body, not params which is url
 	const { name, email, password } = req.body;
+	const hasUser = DUMMY_USERS.find((u) => u.email === email);
+
+	if (hasUser) {
+		throw new HttpError(
+			'Could not create user since email has already been registered',
+			422
+		);
+	}
 
 	const createdUser = {
 		//place data in variable to pass into somewhere like json or db
@@ -28,9 +36,9 @@ const signup = (req, res, next) => {
 	};
 
 	//Add new data into existing db
-    DUMMY_USERS.push(createdUser);
-    
-//this is status because we created new data
+	DUMMY_USERS.push(createdUser);
+
+	//this is status because we created new data
 	res.status(201).json({ user: createdUser });
 };
 
