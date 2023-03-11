@@ -7,9 +7,11 @@ const usersRoutes = require('./routes/users-routes');
 const HttpError = require('./models/http-error');
 
 koopa = process.env.PORT;
+konnection = process.env.CONNECTION;
 const app = express();
 
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 app.use(bodyParser.json());
 
@@ -17,13 +19,13 @@ app.use(bodyParser.json());
 app.use('/api/places', placesRoutes);
 app.use('/api/users', usersRoutes);
 
-//Normal --POSTMAN-- Error Handling Middleware
+//In case the specified route does not exist, error handler
 app.use((req, res, next) => {
 	const error = new HttpError('Could not find this route.', 404);
 	throw error;
 });
 
-//Error handling Middleware for our routes
+//If things were sent twice.
 app.use((error, req, res, next) => {
 	if (res.headersSent) {
 		return next(error);
@@ -33,4 +35,12 @@ app.use((error, req, res, next) => {
 	res.json({ message: error.message || 'An unknown error occurred!' });
 });
 
-app.listen(koopa);
+//Setting up MongoDB connection
+mongoose
+	.connect(`${konnection}`, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+	})
+	.then(() => app.listen(koopa))
+	.catch((error) => console.log('Error connecting to MongoDB: ' + error));
+
