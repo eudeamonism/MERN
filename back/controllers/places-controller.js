@@ -1,5 +1,8 @@
 const HttpError = require('../models/http-error');
 const { v4: uuidv4 } = require('uuid');
+const { validationResult } = require('express-validator');
+
+const getCoordinatesFromAddress = require('../util/location');
 
 let DUMMY_PLACES = [
 	{
@@ -32,7 +35,7 @@ const getPlaceById = (req, res, next) => {
 const getPlacesByUserId = (req, res, next) => {
 	const userId = req.params.uid;
 
-    //filter finds more than one which matches criteria where as find only returns the first one
+	//filter finds more than one which matches criteria where as find only returns the first one
 	const places = DUMMY_PLACES.filter((p) => {
 		return p.creator === userId;
 	});
@@ -48,11 +51,24 @@ const getPlacesByUserId = (req, res, next) => {
 	res.json({ places });
 };
 
-const createPlace = (req, res, next) => {
-	//Object Destructuring to pull out keys from the request body
-	const { title, description, coordinates, address, creator } = req.body;
+const createPlace = async (req, res, next) => {
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
+		return next(
+			new HttpError('Invalid inputs passed, please check your data.', 422)
+		);
+	}
 
-	//create a variable to hold pulled data from request body
+	const { title, description, address, creator } = req.body;
+
+	let coordinates;
+	try {
+		coordinates = await getCoordinatesFromAddress(address);
+	} catch (error) {
+		return next(error);
+	}
+
+	// const title = req.body.title;
 	const createdPlace = {
 		id: uuidv4(),
 		title,
@@ -62,14 +78,21 @@ const createPlace = (req, res, next) => {
 		creator,
 	};
 
-	//place pulled data from request body into a database
-	DUMMY_PLACES.push(createdPlace);
+	DUMMY_PLACES.push(createdPlace); //unshift(createdPlace)
 
-	//send response
 	res.status(201).json({ place: createdPlace });
 };
 
 const updatePlace = (req, res, next) => {
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
+		console.log(errors);
+		throw new HttpError(
+			`Since invalid inputs were passed, please check your data.`,
+			422
+		);
+	}
+
 	//Destructure to only get title and description
 	const { title, description } = req.body;
 
@@ -79,7 +102,7 @@ const updatePlace = (req, res, next) => {
 	//make sure req.body's id is that of DB id
 	const updatedPlace = { ...DUMMY_PLACES.find((p) => p.id === placeId) };
 	//retrieve the location of data in an array
-    const placeIndex = DUMMY_PLACES.findIndex((p) => p.id === placeId);
+	const placeIndex = DUMMY_PLACES.findIndex((p) => p.id === placeId);
 
 	if (title) {
 		//set db tile to equal that of the title inputed in body
@@ -97,13 +120,18 @@ const updatePlace = (req, res, next) => {
 };
 
 const deletePlace = (req, res, next) => {
-    //retrieve id in url
-    const placeId = req.params.pid;
+	//retrieve id in url
+	const placeId = req.params.pid;
 
-    //create new DB where everything other than req.id is there
-    DUMMY_PLACES = DUMMY_PLACES.filter(p => p.id !== placeId);
+	//Validation
+	if (!DUMMY_PLACES.find((p) => p.id === placeId)) {
+		throw new HttpError(`Couldn't find a place for that id.`, 404);
+	}
 
-    res.status(200).json({ message: 'Deleted place.'});
+	//create new DB where everything other than req.id is there
+	DUMMY_PLACES = DUMMY_PLACES.filter((p) => p.id !== placeId);
+
+	res.status(200).json({ message: 'Deleted place.' });
 };
 
 exports.getPlaceById = getPlaceById;
