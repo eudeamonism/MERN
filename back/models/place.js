@@ -7,13 +7,18 @@ const Schema = mongoose.Schema;
 const placeSchema = new Schema({
 	title: {
 		type: String,
-		min: [1, 'You need at least a letter if not more'],
+		min: 1,
 		required: true,
 	},
 	description: {
 		type: String,
-		required: true,
-		min: [3, 'A description should describe more than 3 characters'],
+        required: true,
+		validate: {
+			validator: function (value) {
+				return value.length >= 3;
+			},
+			message: 'Description should be at least 3 characters long.',
+		},
 	},
 	image: { type: String, required: true, max: 1000 },
 	location: {
@@ -23,5 +28,6 @@ const placeSchema = new Schema({
 	creator: { type: String, required: true },
 });
 
+//Place is a MODEL
 //Export is different and return constructor function
 module.exports = mongoose.model('Place', placeSchema);

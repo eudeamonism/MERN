@@ -3,6 +3,8 @@ const { v4: uuidv4 } = require('uuid');
 const { validationResult } = require('express-validator');
 
 const getCoordinatesFromAddress = require('../util/location');
+//We're importing our Place schema, which was capitalized because it is a constructor function
+const Place = require('../models/place');
 
 let DUMMY_PLACES = [
 	{
@@ -17,27 +19,40 @@ let DUMMY_PLACES = [
 	},
 ];
 
-const getPlaceById = (req, res, next) => {
+const getPlaceById = async (req, res, next) => {
 	const placeId = req.params.pid; // { pid: 'p1' }
 
-	const place = DUMMY_PLACES.find((p) => {
-		return p.id === placeId;
-	});
-
-	if (!place) {
-		throw new HttpError('Could not find a place for provided id.', 404);
+	let place;
+	try {
+		//Mongoose Method for finding something bt their id where such id is provided above
+		place = await Place.findById(placeId);
+	} catch (err) {
+		const error = new HttpError(
+			'Something went wrong since we could not find a place',
+			500
+		);
+		return next(error);
 	}
 
-	res.json({ place }); // => { place } => { place: place }
+	if (!place) {
+		const error = new HttpError('Could not find a place for provided id.', 404);
+		return next(error);
+	}
+
+	res.json({ place: place.toObject({ getters: true }) }); // => { place } => { place: place }
 };
 
-const getPlacesByUserId = (req, res, next) => {
+//find() returns a Mongoose Query object that will not excecute the query unless you chain an .exec() method at the end of the query
+const getPlacesByUserId = async (req, res, next) => {
 	const userId = req.params.uid;
 
-	//filter finds more than one which matches criteria where as find only returns the first one
-	const places = DUMMY_PLACES.filter((p) => {
-		return p.creator === userId;
-	});
+	let places;
+	try {
+		places = await Place.find({ creator: userId }).exec();
+	} catch (err) {
+		const error = new HttpError(`Couldn't find a user with that id`, 500);
+		return next(error);
+	}
 
 	if (!places || places.length === 0) {
 		const error = new HttpError(
@@ -46,10 +61,12 @@ const getPlacesByUserId = (req, res, next) => {
 		);
 		return next(error);
 	}
-
-	res.json({ places });
+	//find() returns many documents therefore we have to map them in addition to converting Mongoose object to a JS object with getters set to true
+	res.json({
+		places: places.map((place) => place.toObject({ getters: true })),
+	});
 };
-
+//We're going to use our Mongoose Schema Place Here
 const createPlace = async (req, res, next) => {
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
@@ -67,30 +84,40 @@ const createPlace = async (req, res, next) => {
 		return next(error);
 	}
 
-	// const title = req.body.title;
-	const createdPlace = {
-		id: uuidv4(),
+	//We are injecting Mongoose Place schema here
+	const createdPlace = new Place({
 		title,
 		description,
-		location: coordinates,
 		address,
+		location: coordinates,
+		image:
+			'https://cdn.britannica.com/03/152203-050-28CCC600/Close-up-Leaning-Tower-of-Pisa-Italy.jpg',
 		creator,
-	};
+	});
 
-	DUMMY_PLACES.push(createdPlace); //unshift(createdPlace)
+	//Load into Database where .save is Mongoose method (asynchronous task)
+	try {
+		await createdPlace.save();
+	} catch (err) {
+		const error = new HttpError(
+			'Creating a place failed; please try again.',
+			500
+		);
+		return next(error);
+	}
 
 	res.status(201).json({ place: createdPlace });
 };
 
-const updatePlace = (req, res, next) => {
+const updatePlace = async (req, res, next) => {
 	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		console.log(errors);
-		throw new HttpError(
-			`Since invalid inputs were passed, please check your data.`,
-			422
-		);
-	}
+	// if (!errors.isEmpty()) {
+	// 	const error = new HttpError(
+	// 		`Since invalid inputs were passed, please check your data.`,
+	// 		422
+	//     );
+	//     return next(error);
+	// }
 
 	//Destructure to only get title and description
 	const { title, description } = req.body;
@@ -98,39 +125,57 @@ const updatePlace = (req, res, next) => {
 	//Access the parameters in the url
 	const placeId = req.params.pid;
 
-	//make sure req.body's id is that of DB id
-	const updatedPlace = { ...DUMMY_PLACES.find((p) => p.id === placeId) };
-	//retrieve the location of data in an array
-	const placeIndex = DUMMY_PLACES.findIndex((p) => p.id === placeId);
-
-	if (title) {
-		//set db tile to equal that of the title inputed in body
-		updatedPlace.title = title;
+	//Mongoose retrieves ID here
+	let place;
+	try {
+		place = await Place.findById(placeId);
+	} catch (err) {
+		const error = new HttpError(
+			'Something went wrong since we could not update place',
+			500
+		);
+		return next(error);
 	}
-	if (description) {
-		updatedPlace.description = description;
+
+	if (!place) {
+		const error = new HttpError(
+			`Could not find a place for the provided id`,
+			404
+		);
+		return next(error);
 	}
 
-	//located data in array by index now replace that with updatedPlace which has an updated title and description.
-	DUMMY_PLACES[placeIndex] = updatedPlace;
+	//We set Mongoose variable to destructured variables from req.body here
+	place.title = title;
+	place.description = description;
 
-	//reveal updated data in the key of place
-	res.status(200).json({ place: updatedPlace });
+	try {
+		await place.save();
+	} catch (err) {
+		if (err.name === 'ValidationError') {
+			const error = new HttpError(
+				`Validation failed: ${err.errors.description.message}`,
+				422
+			);
+			return next(error);
+		}
+		const error = new HttpError(`Couldn't update data to database`, 500);
+		return next(error);
+	}
+
+	res.status(200).json({ place: place.toObject({ getters: true }) });
 };
 
-const deletePlace = (req, res, next) => {
+const deletePlace = async (req, res, next) => {
 	//retrieve id in url
 	const placeId = req.params.pid;
-
-	//Validation
-	if (!DUMMY_PLACES.find((p) => p.id === placeId)) {
-		throw new HttpError(`Couldn't find a place for that id.`, 404);
+	try {
+		await Place.findByIdAndDelete(placeId);
+		res.status(200).json({ message: 'Deleted place.' });
+	} catch (err) {
+		const error = new HttpError('Could not delete place', 500);
+		return next(error);
 	}
-
-	//create new DB where everything other than req.id is there
-	DUMMY_PLACES = DUMMY_PLACES.filter((p) => p.id !== placeId);
-
-	res.status(200).json({ message: 'Deleted place.' });
 };
 
 exports.getPlaceById = getPlaceById;
