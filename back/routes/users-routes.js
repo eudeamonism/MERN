@@ -9,7 +9,19 @@ router.get('/', usersControllers.getUsers);
 
 router.post(
 	'/signup',
-	[check('name').not().isEmpty().withMessage('Please enter your first name'), check('email').normalizeEmail().isEmail().withMessage(`What you have entered doesn't meet the requirements of an email`), check('password').isLength({min: 6}).withMessage(`Password must have at least 6 characters`)],
+	[
+		check('name').not().isEmpty().withMessage('Please enter your first name'),
+		check('email')
+			.normalizeEmail()
+			.isEmail()
+			.withMessage(
+				`What you have entered doesn't meet the requirements of an email`
+			),
+		check('password')
+			.isLength({ min: 6 })
+			.withMessage(`Password must have at least 6 characters`),
+	],
+	check('places').not().isEmpty().withMessage('Please name your place'),
 	usersControllers.signup
 );
 
