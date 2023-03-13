@@ -35,8 +35,8 @@ const userSchema = new Schema({
 		},
 	},
 	image: { type: String, required: true },
-	//I think this spot is the critical spot where we connect our user document with their respective places document data.
-	places: { type: String, required: true },
+	//One place can only have one user, but one user can have many places?
+	places: [{ type: mongoose.Types.ObjectId, required: true, ref: 'Place' }],
 });
 
 //Something else you have to here with unique for email

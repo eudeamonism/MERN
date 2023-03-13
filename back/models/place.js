@@ -12,7 +12,7 @@ const placeSchema = new Schema({
 	},
 	description: {
 		type: String,
-        required: true,
+		required: true,
 		validate: {
 			validator: function (value) {
 				return value.length >= 3;
@@ -25,7 +25,8 @@ const placeSchema = new Schema({
 		lat: { type: Number, required: true },
 		lng: { type: Number, required: true },
 	},
-	creator: { type: String, required: true },
+	//Creator will get a unique ID from Mongoose; Also, we place the model reference too.
+	creator: { type: mongoose.Types.ObjectId, required: true, ref: 'User' },
 });
 
 //Place is a MODEL

@@ -1,23 +1,14 @@
 const HttpError = require('../models/http-error');
 const { v4: uuidv4 } = require('uuid');
 const { validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 
 const getCoordinatesFromAddress = require('../util/location');
 //We're importing our Place schema, which was capitalized because it is a constructor function
 const Place = require('../models/place');
 
-let DUMMY_PLACES = [
-	{
-		title: 'Empire State Building',
-		description: 'One of the most famous sky scrapers in the world!',
-		location: {
-			lat: 40.7484474,
-			lng: -73.9871516,
-		},
-		address: '20 W 34th St, New York, NY 10001',
-		creator: 'u1',
-	},
-];
+//We're importing User model to be able to interact with it
+const User = require('../models/user');
 
 const getPlaceById = async (req, res, next) => {
 	const placeId = req.params.pid; // { pid: 'p1' }
@@ -95,9 +86,41 @@ const createPlace = async (req, res, next) => {
 		creator,
 	});
 
-	//Load into Database where .save is Mongoose method (asynchronous task)
+	let user;
 	try {
-		await createdPlace.save();
+		//Check to see if such id is already registered in the database
+		user = await User.findById(creator);
+	} catch (e) {
+		const error = new HttpError(
+			'Creating a place failed, so please try again.',
+			500
+		);
+		return next(error);
+	}
+	//We are trying to create a new place and have such associated with a user. So there should be a user in the database.
+	if (!user) {
+		const error = new HttpError(
+			'We could not find a user for the provided id.',
+			404
+		);
+		return next(error);
+	}
+
+	console.log(user);
+	//Session must start and fire a transaction before two data are uploaded.
+	try {
+		//Part One
+		const session = await mongoose.startSession();
+		session.startTransaction();
+		await createdPlace.save({ session });
+
+		//Part Two--Now user should have places property since such is indicated in the user Schema; push here is a Mongoose method
+        user.places.push(createdPlace);
+        await user.save({ session });
+
+
+        //Part Three--This is where the seesion commits the transaction
+        await session.commitTransaction();
 	} catch (err) {
 		const error = new HttpError(
 			'Creating a place failed; please try again.',

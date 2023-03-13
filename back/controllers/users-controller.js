@@ -3,18 +3,16 @@ const HttpError = require('../models/http-error');
 const { validationResult } = require('express-validator');
 const User = require('../models/user');
 
-const DUMMY_USERS = [
-	{
-		id: 'u1',
-		name: 'Dumbster Dave',
-		email: 'dummy@gmail.com',
-		password: 'password',
-	},
-];
-
-const getUsers = (req, res, next) => {
-	//return array of users
-	res.json({ users: DUMMY_USERS });
+const getUsers = async (req, res, next) => {
+	let users;
+	try {
+		//we apply filters to find method unless we risk showing sensitive information like password
+		users = await User.find({}, '-password');
+	} catch (err) {
+		const error = new HttpError(`Fetching users failed: ${err.message}`, 500);
+		return next(error);
+	}
+	res.json({ users: users.map((user) => user.toObject({ getters: true })) });
 };
 
 const signup = async (req, res, next) => {
@@ -30,7 +28,7 @@ const signup = async (req, res, next) => {
 	}
 
 	//Pull data, destructure, from req.body, not params which is url
-	const { name, email, password, places } = req.body;
+	const { name, email, password } = req.body;
 
 	//Mongoose Package has own error, mongoose method findOne returns promise and is async
 	//Because block scopiny must ensure let over const
@@ -52,14 +50,14 @@ const signup = async (req, res, next) => {
 		);
 		return next(error);
 	}
-	//This is where we fill our document, mongoose, via a new Class constructor
+	//places gets an empty array, which will get filled?
 	const createdUser = new User({
 		name,
 		email,
 		password,
 		image:
 			'https://static.wikia.nocookie.net/nickelodeon/images/9/9a/Ren-stimpy-25-anniversar-hp1y-1.png/revision/latest?cb=20170521210219',
-		places,
+		places: [],
 	});
 
 	try {
