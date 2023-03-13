@@ -115,12 +115,11 @@ const createPlace = async (req, res, next) => {
 		await createdPlace.save({ session });
 
 		//Part Two--Now user should have places property since such is indicated in the user Schema; push here is a Mongoose method
-        user.places.push(createdPlace);
-        await user.save({ session });
+		user.places.push(createdPlace);
+		await user.save({ session });
 
-
-        //Part Three--This is where the seesion commits the transaction
-        await session.commitTransaction();
+		//Part Three--This is where the seesion commits the transaction
+		await session.commitTransaction();
 	} catch (err) {
 		const error = new HttpError(
 			'Creating a place failed; please try again.',
@@ -191,14 +190,33 @@ const updatePlace = async (req, res, next) => {
 
 const deletePlace = async (req, res, next) => {
 	//retrieve id in url
-	const placeId = req.params.pid;
-	try {
-		await Place.findByIdAndDelete(placeId);
-		res.status(200).json({ message: 'Deleted place.' });
-	} catch (err) {
-		const error = new HttpError('Could not delete place', 500);
-		return next(error);
-	}
+    const placeId = req.params.pid;
+
+	//We use populate method to also delete the id for such place which would also be stored in the user's collection of places
+    try {
+			const session = await mongoose.startSession();
+			session.startTransaction();
+
+			const deletedPlace = await Place.findByIdAndDelete(placeId).session(
+				session
+			);
+
+			if (!deletedPlace) {
+				throw new Error('Place not found.');
+			}
+
+			await User.findByIdAndUpdate(deletedPlace.creator, {
+				$pull: { places: placeId },
+			}).session(session);
+
+			await session.commitTransaction();
+			session.endSession();
+
+			res.status(200).json({ message: 'Deleted place.' });
+		} catch (err) {
+			const error = new HttpError('Could not delete place', 500);
+			return next(error);
+		}
 };
 
 exports.getPlaceById = getPlaceById;
