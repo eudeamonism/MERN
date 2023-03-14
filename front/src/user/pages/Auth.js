@@ -5,6 +5,8 @@ import Card from '../../shared/components/UIElements/Card';
 import { AuthContext } from '../../shared/context/auth-context';
 import Input from '../../shared/FormElements/Input';
 import Button from '../../shared/FormElements/Button';
+import ErrorModal from '../../shared/components/UIElements/ErrorModal';
+import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
 import { useForm } from '../../shared/hooks/form-hooks';
 import {
 	VALIDATOR_EMAIL,
@@ -14,9 +16,12 @@ import {
 import './Auth.css';
 
 const Auth = () => {
-    const navigate = useNavigate();
+	const navigate = useNavigate();
 	const auth = useContext(AuthContext);
 	const [isLogin, setIsLogin] = useState(true);
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState();
+
 	const [formState, inputHandler, setFormData] = useForm(
 		{
 			email: {
@@ -56,15 +61,44 @@ const Auth = () => {
 		setIsLogin((prevMode) => !prevMode);
 	};
 
-	const authSubmitHandler = (event) => {
+	//For this handler, we want to fetch both login and signup.
+	const authSubmitHandler = async (event) => {
 		event.preventDefault();
+		if (isLogin) {
+		} else {
+			try {
+				//Set loading spinner here since loading will most likely take a lot of time
+				setIsLoading(true);
 
-		console.log(formState.inputs);
-		auth.login();
+				//signup fetch
+				const response = await fetch('http://localhost:5000/api/users/signup', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						name: formState.inputs.name.value,
+						email: formState.inputs.email.value,
+						password: formState.inputs.password.value,
+					}),
+				});
+
+				const responseData = await response.json();
+				console.log(responseData);
+				setIsLoading(false);
+				auth.login();
+			} catch (err) {
+                console.log(err);
+                setIsLoading(false);
+				setError(err.message || 'Something went wrong, please try again.');
+			}
+		}
+
 		navigate('/');
 	};
 	return (
-		<Card className="authentication">
+        <Card className="authentication">
+            {isLoading && <LoadingSpinner asOverlay/>}
 			<h2>Login Required</h2>
 			<hr />
 			<form onSubmit={authSubmitHandler}>

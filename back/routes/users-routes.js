@@ -5,8 +5,10 @@ const usersControllers = require('../controllers/users-controller');
 
 const router = express.Router();
 
+//GET USERS
 router.get('/', usersControllers.getUsers);
 
+//SIGNUP
 router.post(
 	'/signup',
 	[
@@ -21,10 +23,9 @@ router.post(
 			.isLength({ min: 6 })
 			.withMessage(`Password must have at least 6 characters`),
 	],
-	check('places').not().isEmpty().withMessage('Please name your place'),
 	usersControllers.signup
 );
-
+//LOGIN
 router.post('/login', usersControllers.login);
 
 module.exports = router;

@@ -15,6 +15,18 @@ const mongoose = require('mongoose');
 
 app.use(bodyParser.json());
 
+//Allow CORS
+app.use(function (req, res, next) {
+	res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE');
+	res.setHeader(
+		'Access-Control-Allow-Headers',
+		'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+	);
+	// res.setHeader('Access-Control-Allow-Credentials', true);
+	next();
+});
+
 //Route: we applied a new route to our placeRoutes
 app.use('/api/places', placesRoutes);
 app.use('/api/users', usersRoutes);
@@ -43,4 +55,3 @@ mongoose
 	})
 	.then(() => app.listen(koopa))
 	.catch((error) => console.log('Error connecting to MongoDB: ' + error));
-
