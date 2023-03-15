@@ -42,6 +42,7 @@ const ourRouter = createBrowserRouter([
 //Now, we have to return something special below. We use the RouterProvider function and set params of router to call our const ourRouter.
 function App() {
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
+	const [userId, setUserId] = useState(false);
 
 	let routes;
 
@@ -55,18 +56,20 @@ function App() {
 		routes = {};
 	}
 
-	const login = useCallback(() => {
-		setIsLoggedIn(true);
+	const login = useCallback((uid) => {
+        setIsLoggedIn(true);
+        setUserId(uid);
 	}, []);
 
 	const logout = useCallback(() => {
         setIsLoggedIn(false);
+        setUserId(null)
 	}, []);
 
 	//we pass handlers and state in our provider which is connected to the whole application
 	return (
 		<AuthContext.Provider
-			value={{ isLoggedIn: isLoggedIn, login: login, logout: logout }}
+			value={{ isLoggedIn: isLoggedIn,userId: userId, login: login, logout: logout }}
 		>
 			<RouterProvider router={ourRouter} />
 		</AuthContext.Provider>
