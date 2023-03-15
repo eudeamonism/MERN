@@ -5,7 +5,7 @@ import {
 	VALIDATOR_MINLENGTH,
 } from '../../shared/util/validators';
 //Custom Hook
-import { useForm } from '../../shared/hooks/form-hooks';
+import { useForm } from '../../shared/hooks/form-hook';
 
 import './PlaceForm.css';
 

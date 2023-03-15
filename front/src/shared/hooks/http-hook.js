@@ -9,40 +9,44 @@ export const useHttpClient = () => {
 	const sendRequest = useCallback(
 		async (url, method = 'GET', body = null, headers = {}) => {
 			setIsLoading(true);
-            const httpAbortCtrll = new AbortController();
-            activeHttpRequests.current.push(httpAbortCtrll)
+			const httpAbortCtrll = new AbortController();
+			activeHttpRequests.current.push(httpAbortCtrll);
 			try {
 				const response = await fetch(url, {
 					method,
 					body,
-                    headers,
-                    signal: httpAbortCtrll.signal
+					headers,
+					signal: httpAbortCtrll.signal,
 				});
 
-				const responseData = await response.json();
+                const responseData = await response.json();
+
+                activeHttpRequests.current = activeHttpRequests.current.filter(reqCtrl => reqCtrl !==httpAbortCtrll);
 
 				if (!response.ok) {
 					throw new Error(responseData.message);
-				}
+                }
+                setIsLoading(false);
 				return responseData;
 			} catch (err) {
 				setError(err.message);
+				setIsLoading(false);
+				throw err;
 			}
-			setIsLoading(false);
 		},
 		[]
 	);
 
 	const clearError = () => {
 		setError(null);
-    };
+	};
 
-    useEffect(() => {
-        return () => {
-        //cleanup function
-            activeHttpRequests.current.forEach(abortCtrl => abortCtrl.abort())
-        }
-    }, [])
+	useEffect(() => {
+		return () => {
+			//cleanup function
+			activeHttpRequests.current.forEach((abortCtrl) => abortCtrl.abort());
+		};
+	}, []);
 
 	return { isLoading, error, sendRequest, clearError };
 };

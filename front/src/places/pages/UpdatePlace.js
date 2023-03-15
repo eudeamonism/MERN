@@ -6,7 +6,7 @@ import {
 	VALIDATOR_REQUIRE,
 	VALIDATOR_MINLENGTH,
 } from '../../shared/util/validators';
-import { useForm } from '../../shared/hooks/form-hooks';
+import { useForm } from '../../shared/hooks/form-hook';
 import Card from '../../shared/components/UIElements/Card'
 import './PlaceForm.css';
 
