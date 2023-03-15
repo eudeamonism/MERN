@@ -1,17 +1,50 @@
-import React from 'react'
-import UsersList from '../components/UsersList'
+import React, { useEffect, useState } from 'react';
+import UsersList from '../components/UsersList';
+import ErrorModal from '../../shared/components/UIElements/ErrorModal';
+import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
 function Users() {
-    const USERS = [{
-        id: 'u1',
-        name: 'Spider Ham',
-        image: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fvignette.wikia.nocookie.net%2Fpoohadventures%2Fimages%2F4%2F49%2FPeter_Porker.png%2Frevision%2Flatest%2Fscale-to-width-down%2F2000%3Fcb%3D20200710234628&f=1&nofb=1&ipt=33a3a06d0191a1f75a5285f51d5bff094a0ef1b8a31f1bc423ad36f0a9b1d6e4&ipo=images',
-        places: 5,
-    }];
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState();
+	const [loadedUsers, setLoadedUsers] = useState();
 
-//we pass items property with a handler that will contain DB. This prop will be extracted down the totem pole. INTERESTINGLY, we are only passing an object and not a function.
-  return (
-      <UsersList items={USERS} />
-  )
+	//We're using useEffect hook and IIFE to run async await
+	useEffect(() => {
+		const sendRequest = async () => {
+			setIsLoading(true);
+			try {
+				const response = await fetch('http://localhost:5000/api/users');
+
+				const responseData = await response.json();
+
+				if (!response.ok) {
+					throw new Error(responseData.message);
+				}
+
+				setLoadedUsers(responseData.users);
+				setIsLoading(false);
+			} catch (err) {
+				setError(err.message);
+			}
+			setIsLoading(false);
+		};
+		sendRequest();
+	}, []);
+
+	const errorHandler = () => {
+		setError(null);
+	};
+
+	return (
+		<>
+			<ErrorModal error={error} onClear={errorHandler} />
+			{isLoading && (
+				<div className="center">
+					<LoadingSpinner />
+				</div>
+			)}
+			{!isLoading && loadedUsers && <UsersList items={loadedUsers} />}
+		</>
+	);
 }
 
-export default Users
+export default Users;
