@@ -1,49 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import Input from '../../shared/FormElements/Input';
 import Button from '../../shared/FormElements/Button';
+import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
+import ErrorModal from '../../shared/components/UIElements/ErrorModal';
 import {
 	VALIDATOR_REQUIRE,
 	VALIDATOR_MINLENGTH,
 } from '../../shared/util/validators';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from '../../shared/hooks/form-hook';
-import Card from '../../shared/components/UIElements/Card'
+import { useHttpClient } from '../../shared/hooks/http-hook';
+import Card from '../../shared/components/UIElements/Card';
+import { AuthContext } from '../../shared/context/auth-context';
 import './PlaceForm.css';
 
-const DUMMY_PLACES = [
-	{
-		id: 'p1',
-		image:
-			'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.irlabnp.org%2Fwp-content%2Fuploads%2F2016%2F11%2Fpisa.jpg&f=1&nofb=1&ipt=f71b9f70d1c19614479a9c567cd9ccd8600db33986ed55455e7624c7abefc38c&ipo=images',
-		title: 'Some Italian Landmark',
-		description:
-			'A remarkable image which most likely would entail a remarkable yet flooded destination.',
-		address: '123 I-Dunno Street, Some Place In Italy, Italy',
-		location: {
-			lat: 43.722971,
-			lng: 10.3966543,
-		},
-		creatorId: 'u1',
-	},
-	{
-		id: 'p2',
-		image:
-			'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Flonelyplanetimages.imgix.net%2Fa%2Fg%2Fhi%2Ft%2Fd9960974f6e911075de951b22a332fbe-tokyo-national-museum.jpg&f=1&nofb=1&ipt=2df7161738847d67bc47510aa8885b7721df230583a6315d65489a732bcc9c26&ipo=images',
-		title: 'National Museum of Modern Art, Tokyo',
-		description:
-			'Renovated 1969 gallery housing Japanese art created since the start of the Meiji period (1868).',
-		address: '3-1 Kitanomarukoen, Chiyoda City, Tokyo 102-8322, Japan',
-		location: {
-			lat: 35.6905432,
-			lng: 139.7423121,
-		},
-		creatorId: 'u2',
-	},
-];
-
 const UpdatePlace = () => {
-	const [isLoading, setIsLoading] = useState(true);
-
+	const navigate = useNavigate();
+	const auth = useContext(AuthContext);
+	const { sendRequest, clearError, error, isLoading } = useHttpClient();
+	const [loadedPlace, setLoadedPlace] = useState();
 	const placeId = useParams().placeId;
 
 	const [formState, inputHandler, setFormData] = useForm(
@@ -60,79 +36,106 @@ const UpdatePlace = () => {
 		false
 	);
 
-	const identifiedPlace = DUMMY_PLACES.find((p) => p.id === placeId);
-	// We placed it below database so we can access from it.
-
 	useEffect(() => {
-		if (identifiedPlace) {
-			//Checking data to see if we have variables below.
-			setFormData(
-				{
-					title: {
-						value: identifiedPlace.title,
-						isValid: true,
-					},
-					description: {
-						value: identifiedPlace.description,
-						isValid: true,
-					},
-				},
-				true
-			);
-		}
-		setIsLoading(false);
-	}, [setFormData, identifiedPlace]);
+		const fetchPlace = async () => {
+			try {
+				const responseData = await sendRequest(
+					`http://localhost:5000/api/places/${placeId}`
+				);
 
-	const placeUpdateSubmitHandler = (event) => {
+				setLoadedPlace(responseData.place);
+				setFormData(
+					{
+						title: {
+							value: responseData.place.title,
+							isValid: true,
+						},
+						description: {
+							value: responseData.place.description,
+							isValid: true,
+						},
+					},
+					true
+				);
+			} catch (err) {
+				// Handle error
+			}
+		};
+
+		fetchPlace();
+		// navigate('/');
+	}, [sendRequest, placeId, setFormData]);
+
+	const placeUpdateSubmitHandler = async (event) => {
 		event.preventDefault();
-		console.log(formState.inputs);
+		try {
+			await sendRequest(
+				`http://localhost:5000/api/places/${placeId}`,
+				'PATCH',
+				JSON.stringify({
+					title: formState.inputs.title.value,
+					description: formState.inputs.description.value,
+				}),
+				{ 'Content-Type': 'application/json' }
+			);
+			navigate('/' + auth.userId + '/places');
+		} catch (err) {}
 	};
 
-if (!identifiedPlace) {
-	return (
-		<div className="center">
-			<Card>
-				<h2>Could not find place!</h2>
-			</Card>
-		</div>
-	);
-}
-
 	if (isLoading) {
-		return <h2 className="center">Loading...</h2>;
+		return (
+			<div className="center">
+				<LoadingSpinner />
+			</div>
+		);
 	}
+
+	if (!loadedPlace && !error) {
+		return (
+			<div className="center">
+				<Card>
+					<h2>Could not find place!</h2>
+				</Card>
+			</div>
+		);
+	}
+
 	// formState.inputs.title.value
 	//formState is what passes data from custom Hook to here where it holds the initial state of inputs. title is what we want so we access it's value property
 
-
 	return (
-		<form className="place-form" onSubmit={placeUpdateSubmitHandler}>
-			<Input
-				id="title"
-				element="input"
-				type="text"
-				label="Title"
-				validators={[VALIDATOR_REQUIRE()]}
-				errorText="Please enter a valid title"
-				onInput={inputHandler}
-				initialValue={formState.inputs.title.value}
-				initialValid={formState.inputs.title.isValid}
-			/>
-			<Input
-				id="description"
-				type="textarea"
-				label="Description"
-				validators={VALIDATOR_MINLENGTH(5)}
-				errorText="Please enter a valid description (min. 5 characters"
-				onInput={inputHandler}
-				initialValue={formState.inputs.description.value}
-				initialValid={formState.inputs.description.isValid}
-			/>
+		<>
+			<ErrorModal error={error} onClear={clearError} />
+			{!isLoading && loadedPlace && (
+				<form className="place-form" onSubmit={placeUpdateSubmitHandler}>
+					<Input
+						id="title"
+						element="input"
+						type="text"
+						label="Title"
+						validators={[VALIDATOR_REQUIRE()]}
+						errorText="Please enter a valid title"
+						onInput={inputHandler}
+						initialValue={loadedPlace.title}
+						initialValid={true}
+					/>
+					<Input
+						id="description"
+						type="textarea"
+						label="Description"
+						validators={[VALIDATOR_MINLENGTH(5)]}
+						errorText="Please enter a valid description (min. 5 characters"
+						onInput={inputHandler}
+						initialValue={loadedPlace.description}
+						initialValid={true}
+					/>
 
-			<Button type="submit" disabled={!formState.isValid}>
-				UPDATE PLACE
-			</Button>
-		</form>
+					<Button type="submit" disabled={!formState.isValid}>
+						UPDATE PLACE
+					</Button>
+				</form>
+			)}
+		</>
 	);
 };
 

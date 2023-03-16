@@ -133,13 +133,8 @@ const createPlace = async (req, res, next) => {
 
 const updatePlace = async (req, res, next) => {
 	const errors = validationResult(req);
-	// if (!errors.isEmpty()) {
-	// 	const error = new HttpError(
-	// 		`Since invalid inputs were passed, please check your data.`,
-	// 		422
-	//     );
-	//     return next(error);
-	// }
+
+
 
 	//Destructure to only get title and description
 	const { title, description } = req.body;
@@ -170,7 +165,7 @@ const updatePlace = async (req, res, next) => {
 	//We set Mongoose variable to destructured variables from req.body here
 	place.title = title;
 	place.description = description;
-
+    console.log(place.title, place.description)
 	try {
 		await place.save();
 	} catch (err) {
