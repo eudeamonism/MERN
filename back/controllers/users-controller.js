@@ -20,11 +20,6 @@ const signup = async (req, res, next) => {
 
 	if (!errors.isEmpty()) {
 		return next(res.status(400).json({ errors: errors.array() }));
-
-		// throw new HttpError(
-		// 	`Since invalid inputs were passed, please check your data --> ${errors.errors[0].msg}`,
-		// 	422
-		// );
 	}
 
 	//Pull data, destructure, from req.body, not params which is url

@@ -1,3 +1,5 @@
+// const fs = require("fs");
+
 require('dotenv').config();
 const express = require('express');
 
@@ -39,6 +41,12 @@ app.use((req, res, next) => {
 
 //If things were sent twice.
 app.use((error, req, res, next) => {
+    // if (req.file) {
+    //     fs.unlinkSync(req.file.path, (err) => {
+    //         console.log(err);
+    //     });
+    // }
+
 	if (res.headersSent) {
 		return next(error);
 	}
