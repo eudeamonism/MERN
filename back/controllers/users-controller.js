@@ -1,6 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
-const HttpError = require('../models/http-error');
 const { validationResult } = require('express-validator');
+const bcrypt = require('bcrypt');
+const HttpError = require('../models/http-error');
 const User = require('../models/user');
 
 const getUsers = async (req, res, next) => {
@@ -45,11 +46,19 @@ const signup = async (req, res, next) => {
 		);
 		return next(error);
 	}
-	//places gets an empty array, which will get filled?
+
+	//Hashing Password first from receiving it from text form req.body above
+	try {
+		hashedPassword = await bcrypt.hash(password, 12);
+	} catch (err) {
+        const error = new HttpError(`Password hash failed, please try again later. Error: ${err.message}`, 500);
+        return next(error);
+	}
+
 	const createdUser = new User({
 		name,
 		email,
-		password,
+		password: hashedPassword,
 		image: req.file.path,
 		places: [],
 	});
@@ -92,10 +101,10 @@ const login = async (req, res, next) => {
 		return next(error);
 	}
 
-	  res.json({
-			message: 'Logged in!',
-			user: existingUser.toObject({ getters: true }),
-		});
+	res.json({
+		message: 'Logged in!',
+		user: existingUser.toObject({ getters: true }),
+	});
 };
 
 exports.getUsers = getUsers;

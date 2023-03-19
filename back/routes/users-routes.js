@@ -23,8 +23,8 @@ router.post(
 				`What you have entered doesn't meet the requirements of an email`
 			),
 		check('password')
-			.isLength({ min: 6 })
-			.withMessage(`Password must have at least 6 characters`),
+			.isLength({ min: 8 })
+			.withMessage(`Password must have at least 8 characters`),
 	],
 	usersControllers.signup
 );
