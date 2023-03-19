@@ -45,7 +45,7 @@ const signup = async (req, res, next) => {
 
 	if (existingUser) {
 		const error = new HttpError(
-			`User exists already. Please login instead.`,
+			`User exists already. Please login instead.qqqqqqq`,
 			422
 		);
 		return next(error);
@@ -73,7 +73,7 @@ const signup = async (req, res, next) => {
 	try {
 		await createdUser.save();
 	} catch (err) {
-		const error = new HttpError(`Signing up failed; please try again `, 500);
+		const error = new HttpError(`Signing up failed; please try again surprise `, 500);
 		return next(error);
 	}
 
@@ -87,7 +87,7 @@ const signup = async (req, res, next) => {
 			{ expiresIn: '1h' }
 		);
 	} catch (err) {
-		const error = new HttpError(`Signing up failed; please try again.`, 500);
+		const error = new HttpError(`Signing up failed; please try again 445.`, 500);
 		return next(error);
 	}
 
