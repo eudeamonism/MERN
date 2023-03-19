@@ -1,5 +1,9 @@
 import React, { useState, useCallback } from 'react';
-import { createBrowserRouter, RouterProvider, useNavigate } from 'react-router-dom';
+import {
+	createBrowserRouter,
+	RouterProvider,
+	useNavigate,
+} from 'react-router-dom';
 
 import Users from './user/pages/Users';
 import Root from './shared/components/Navigation/Root';
@@ -41,12 +45,12 @@ const ourRouter = createBrowserRouter([
 
 //Now, we have to return something special below. We use the RouterProvider function and set params of router to call our const ourRouter.
 function App() {
-	const [isLoggedIn, setIsLoggedIn] = useState(false);
+	const [token, setToken] = useState(false);
 	const [userId, setUserId] = useState(false);
 
 	let routes;
 
-	if (isLoggedIn) {
+	if (token) {
 		routes = [
 			{ path: '/', element: <Users /> },
 			{ path: '/:userId/places', element: <UserPlaces /> },
@@ -56,20 +60,26 @@ function App() {
 		routes = {};
 	}
 
-	const login = useCallback((uid) => {
-        setIsLoggedIn(true);
-        setUserId(uid);
+	const login = useCallback((uid, token) => {
+		setToken(token);
+		setUserId(uid);
 	}, []);
 
 	const logout = useCallback(() => {
-        setIsLoggedIn(false);
-        setUserId(null)
+		setToken(null);
+		setUserId(null);
 	}, []);
 
 	//we pass handlers and state in our provider which is connected to the whole application
 	return (
 		<AuthContext.Provider
-			value={{ isLoggedIn: isLoggedIn,userId: userId, login: login, logout: logout }}
+			value={{
+				isLoggedIn: !!token,
+				token: token,
+				userId: userId,
+				login: login,
+				logout: logout,
+			}}
 		>
 			<RouterProvider router={ourRouter} />
 		</AuthContext.Provider>
