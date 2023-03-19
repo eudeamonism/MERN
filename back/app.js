@@ -1,4 +1,5 @@
-// const fs = require("fs");
+const fs = require('fs');
+const path = require('path');
 
 require('dotenv').config();
 const express = require('express');
@@ -16,6 +17,8 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
 app.use(bodyParser.json());
+//This grants access to these folders
+app.use('/uploads/images', express.static(path.join('uploads', 'images')));
 
 //Allow CORS
 app.use(function (req, res, next) {
@@ -41,11 +44,11 @@ app.use((req, res, next) => {
 
 //If things were sent twice.
 app.use((error, req, res, next) => {
-    // if (req.file) {
-    //     fs.unlinkSync(req.file.path, (err) => {
-    //         console.log(err);
-    //     });
-    // }
+	if (req.file) {
+		fs.unlink(req.file.path, (err) => {
+			console.log(err);
+		});
+	}
 
 	if (res.headersSent) {
 		return next(error);

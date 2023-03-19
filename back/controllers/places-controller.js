@@ -1,3 +1,4 @@
+const fs = require('fs');
 const HttpError = require('../models/http-error');
 const { v4: uuidv4 } = require('uuid');
 const { validationResult } = require('express-validator');
@@ -76,13 +77,13 @@ const createPlace = async (req, res, next) => {
 	}
 
 	//We are injecting Mongoose Place schema here
+	//Image receives the image link only here
 	const createdPlace = new Place({
 		title,
 		description,
 		address,
 		location: coordinates,
-		image:
-			'https://cdn.britannica.com/03/152203-050-28CCC600/Close-up-Leaning-Tower-of-Pisa-Italy.jpg',
+		image: req.file.path,
 		creator,
 	});
 
@@ -134,8 +135,6 @@ const createPlace = async (req, res, next) => {
 const updatePlace = async (req, res, next) => {
 	const errors = validationResult(req);
 
-
-
 	//Destructure to only get title and description
 	const { title, description } = req.body;
 
@@ -165,7 +164,7 @@ const updatePlace = async (req, res, next) => {
 	//We set Mongoose variable to destructured variables from req.body here
 	place.title = title;
 	place.description = description;
-    console.log(place.title, place.description)
+	console.log(place.title, place.description);
 	try {
 		await place.save();
 	} catch (err) {
@@ -185,33 +184,48 @@ const updatePlace = async (req, res, next) => {
 
 const deletePlace = async (req, res, next) => {
 	//retrieve id in url
-    const placeId = req.params.pid;
+	const placeId = req.params.pid;
 
-	//We use populate method to also delete the id for such place which would also be stored in the user's collection of places
-    try {
-			const session = await mongoose.startSession();
-			session.startTransaction();
+  let place;
+	try {
+		place = await Place.findById(placeId).populate('creator');
+	} catch (err) {
+		const error = new HttpError(
+			'Something went wrong, could not delete place.',
+			500
+		);
+		return next(error);
+	}
+const imagePath = place.image;
+	try {
+		const session = await mongoose.startSession();
+		session.startTransaction();
 
-			const deletedPlace = await Place.findByIdAndDelete(placeId).session(
-				session
-			);
+		const deletedPlace = await Place.findByIdAndDelete(placeId).session(
+			session
+		);
 
-			if (!deletedPlace) {
-				throw new Error('Place not found.');
-			}
-
-			await User.findByIdAndUpdate(deletedPlace.creator, {
-				$pull: { places: placeId },
-			}).session(session);
-
-			await session.commitTransaction();
-			session.endSession();
-
-			res.status(200).json({ message: 'Deleted place.' });
-		} catch (err) {
-			const error = new HttpError('Could not delete place', 500);
-			return next(error);
+		if (!deletedPlace) {
+			throw new Error('Place not found.');
 		}
+
+
+		await User.findByIdAndUpdate(deletedPlace.creator, {
+			$pull: { places: placeId },
+		}).session(session);
+
+		await session.commitTransaction();
+		session.endSession();
+
+		res.status(200).json({ message: 'Deleted place.' });
+	} catch (err) {
+		const error = new HttpError('Could not delete place', 500);
+		return next(error);
+	}
+
+	fs.unlink(imagePath, (err) => {
+		console.log(err);
+	});
 };
 
 exports.getPlaceById = getPlaceById;

@@ -2,6 +2,7 @@ const express = require('express');
 const { check } = require('express-validator');
 
 const placesControllers = require('../controllers/places-controller');
+const fileUpload = require('../middleware/file-upload')
 
 const router = express.Router();
 
@@ -14,6 +15,7 @@ router.get('/user/:uid', placesControllers.getPlacesByUserId);
 //We can register multiple middlewares after the filter. Which are executed in order.
 router.post(
     '/',
+    fileUpload.single('image'),
     [
         check('title').not().isEmpty().withMessage('Cannot be empty!'),
         check('description').isLength({ min: 5, max: 20 }).withMessage('A minimum of 5 characters but no more than 20 is allowed.'),

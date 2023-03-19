@@ -43,8 +43,8 @@ const Auth = () => {
 			setFormData(
 				{
 					...formState.inputs,
-                    name: undefined,
-                    image: undefined
+					name: undefined,
+					image: undefined,
 				},
 				formState.inputs.email.isValid && formState.inputs.password.isValid
 			);
@@ -55,11 +55,11 @@ const Auth = () => {
 					name: {
 						value: '',
 						isValid: false,
-                    },
-                    image: {
-                        value: null,
-                        isValid: false
-                    }
+					},
+					image: {
+						value: null,
+						isValid: false,
+					},
 				},
 				false
 			);
@@ -68,7 +68,7 @@ const Auth = () => {
 	};
 
 	const authSubmitHandler = async (event) => {
-        event.preventDefault();
+		event.preventDefault();
 
 		if (isLogin) {
 			try {
@@ -87,16 +87,16 @@ const Auth = () => {
 				navigate('/');
 			} catch (err) {}
 		} else {
-            try {
-                const formData = new FormData();
-                formData.append('email', formState.inputs.email.value);
-                formData.append('name', formState.inputs.name.value);
-                formData.append('password', formState.inputs.password.value);
-                formData.append('image', formState.inputs.image.value);
+			try {
+				const formData = new FormData();
+				formData.append('email', formState.inputs.email.value);
+				formData.append('name', formState.inputs.name.value);
+				formData.append('password', formState.inputs.password.value);
+				formData.append('image', formState.inputs.image.value);
 				const responseData = await sendRequest(
 					'http://localhost:5000/api/users/signup',
-                    'POST',
-                    formData,
+					'POST',
+					formData
 				);
 				auth.login(responseData.user.id);
 				navigate('/');
@@ -121,8 +121,15 @@ const Auth = () => {
 							errorText="Please enter a name"
 							onInput={inputHandler}
 						/>
-                    )}
-                    {!isLogin && <ImageUpload center id="image" onInput={inputHandler} />}
+					)}
+					{!isLogin && (
+						<ImageUpload
+							center
+							id="image"
+							onInput={inputHandler}
+							errorText="Please add an image"
+						/>
+					)}
 					<Input
 						id="email"
 						element="input"

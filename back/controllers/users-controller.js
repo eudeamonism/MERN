@@ -50,8 +50,7 @@ const signup = async (req, res, next) => {
 		name,
 		email,
 		password,
-		image:
-			'https://static.wikia.nocookie.net/nickelodeon/images/9/9a/Ren-stimpy-25-anniversar-hp1y-1.png/revision/latest?cb=20170521210219',
+		image: req.file.path,
 		places: [],
 	});
 
