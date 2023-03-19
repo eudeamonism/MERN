@@ -1,8 +1,12 @@
+require('dotenv').config();
 const { v4: uuidv4 } = require('uuid');
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const HttpError = require('../models/http-error');
 const User = require('../models/user');
+
+JWT_KEY = process.env.JWT_SECRET;
 
 const getUsers = async (req, res, next) => {
 	let users;
@@ -51,8 +55,11 @@ const signup = async (req, res, next) => {
 	try {
 		hashedPassword = await bcrypt.hash(password, 12);
 	} catch (err) {
-        const error = new HttpError(`Password hash failed, please try again later. Error: ${err.message}`, 500);
-        return next(error);
+		const error = new HttpError(
+			`Password hash failed, please try again later. Error: ${err.message}`,
+			500
+		);
+		return next(error);
 	}
 
 	const createdUser = new User({
@@ -66,15 +73,28 @@ const signup = async (req, res, next) => {
 	try {
 		await createdUser.save();
 	} catch (err) {
-		const error = new HttpError(
-			`Signing up failed; please try again. ${err.message}`,
-			500
+		const error = new HttpError(`Signing up failed; please try again `, 500);
+		return next(error);
+	}
+
+	//Generate token because user is ok
+	//createdUser generates an id because of Mongoose
+	let token;
+	try {
+		token = jwt.sign(
+			{ userId: createdUser.id, email: createdUser.email },
+			JWT_KEY,
+			{ expiresIn: '1h' }
 		);
+	} catch (err) {
+		const error = new HttpError(`Signing up failed; please try again.`, 500);
 		return next(error);
 	}
 
 	//this is status because we created new data
-	res.status(201).json({ user: createdUser.toObject({ getters: true }) });
+	res
+		.status(201)
+		.json({ userId: createdUser.id, email: createdUser.email, token: token });
 };
 
 const login = async (req, res, next) => {
@@ -93,7 +113,7 @@ const login = async (req, res, next) => {
 	}
 
 	//if the database password does not match password entered from req.body
-	if (!existingUser || existingUser.password !== password) {
+	if (!existingUser) {
 		const error = new HttpError(
 			"Invalid credentials, therefore you couldn't be logged in",
 			401
@@ -101,9 +121,44 @@ const login = async (req, res, next) => {
 		return next(error);
 	}
 
+	//We found a user and need to check the password with bcrypt
+	//compare returns a boolean and a promise
+
+	let isValidPassword = false;
+	try {
+		isValidPassword = await bcrypt.compare(password, existingUser.password);
+	} catch (err) {
+		const error = new HttpError(
+			`Could not log you in, please check your credentials and try again.`,
+			500
+		);
+		return next(error);
+	}
+
+	if (!isValidPassword) {
+		const error = new HttpError(
+			"Invalid credentials, therefore you couldn't be logged in",
+			401
+		);
+		return next(error);
+	}
+	//We are actually generating a token here too, the same one used in signup.
+	let token;
+	try {
+		token = jwt.sign(
+			{ userId: existingUser.id, email: existingUser.email },
+			JWT_KEY,
+			{ expiresIn: '1h' }
+		);
+	} catch (err) {
+		const error = new HttpError(`Logging in failed; please try again.`, 500);
+		return next(error);
+	}
+
 	res.json({
-		message: 'Logged in!',
-		user: existingUser.toObject({ getters: true }),
+		userId: existingUser.id,
+		email: existingUser.email,
+		token: token,
 	});
 };
 
