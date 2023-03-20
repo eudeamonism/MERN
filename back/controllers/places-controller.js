@@ -160,6 +160,11 @@ const updatePlace = async (req, res, next) => {
 		);
 		return next(error);
 	}
+	//Verify if this is the correct user with correct token
+	if (place.creator.toString() !== req.userData.userId) {
+		const error = new HttpError(`You are not allowed to edit this place`, 401);
+		return next(error);
+	}
 
 	//We set Mongoose variable to destructured variables from req.body here
 	place.title = title;
@@ -182,11 +187,14 @@ const updatePlace = async (req, res, next) => {
 	res.status(200).json({ place: place.toObject({ getters: true }) });
 };
 
+//DELETE
+//DELETE
+
 const deletePlace = async (req, res, next) => {
 	//retrieve id in url
 	const placeId = req.params.pid;
 
-  let place;
+	let place;
 	try {
 		place = await Place.findById(placeId).populate('creator');
 	} catch (err) {
@@ -196,7 +204,20 @@ const deletePlace = async (req, res, next) => {
 		);
 		return next(error);
 	}
-const imagePath = place.image;
+	if (!place) {
+		const error = new HttpError('Could not find place for this id.', 404);
+		return next(error);
+	}
+
+	if (place.creator.id !== req.userData.userId) {
+		const error = new HttpError(
+			`You are not allowed to delete this place`,
+			401
+		);
+		return next(error);
+	}
+
+	const imagePath = place.image;
 	try {
 		const session = await mongoose.startSession();
 		session.startTransaction();
@@ -208,7 +229,6 @@ const imagePath = place.image;
 		if (!deletedPlace) {
 			throw new Error('Place not found.');
 		}
-
 
 		await User.findByIdAndUpdate(deletedPlace.creator, {
 			$pull: { places: placeId },

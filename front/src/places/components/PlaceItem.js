@@ -36,7 +36,7 @@ const PlaceItem = (props) => {
 				'DELETE',
 				null,
 				{
-					Authorization: 'Bearer ' + auth.token,
+					Authorization: 'Bearer ' + auth.token
 				}
 			);
 
@@ -57,7 +57,7 @@ const PlaceItem = (props) => {
 				footer={<Button onClick={closeMapHandler}>CLOSE</Button>}
 			>
 				<div className="map-container">
-					<MapChart />
+					<MapChart center={props.coordinates} zoom={16} />
 				</div>
 			</Modal>
 			<Modal

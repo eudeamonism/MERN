@@ -52,6 +52,7 @@ const signup = async (req, res, next) => {
 	}
 
 	//Hashing Password first from receiving it from text form req.body above
+    let hashedPassword;
 	try {
 		hashedPassword = await bcrypt.hash(password, 12);
 	} catch (err) {
@@ -65,8 +66,8 @@ const signup = async (req, res, next) => {
 	const createdUser = new User({
 		name,
 		email,
-		password: hashedPassword,
 		image: req.file.path,
+		password: hashedPassword,
 		places: [],
 	});
 
@@ -116,7 +117,7 @@ const login = async (req, res, next) => {
 	if (!existingUser) {
 		const error = new HttpError(
 			"Invalid credentials, therefore you couldn't be logged in",
-			401
+			403
 		);
 		return next(error);
 	}
