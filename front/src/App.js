@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
 	createBrowserRouter,
 	RouterProvider,
@@ -59,16 +59,32 @@ function App() {
 	} else {
 		routes = {};
 	}
-
+	//Will work on storing token for further logins
 	const login = useCallback((uid, token) => {
 		setToken(token);
 		setUserId(uid);
+		localStorage.setItem(
+			'userData',
+			JSON.stringify({ userId: uid, token: token })
+		);
 	}, []);
 
 	const logout = useCallback(() => {
 		setToken(null);
 		setUserId(null);
+		localStorage.removeItem('userData');
 	}, []);
+
+	//Runs only once per restart, and we will find token when it mounts, renders the first time.
+	useEffect(() => {
+		//Parse takes a string and converts it to an object.
+		//This will have a userId and a token.
+		const storedData = JSON.parse(localStorage.getItem('userData'));
+
+		if (storedData && storedData.token) {
+			login(storedData.userId, storedData.token);
+		}
+	}, [login]);
 
 	//we pass handlers and state in our provider which is connected to the whole application
 	return (
