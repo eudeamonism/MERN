@@ -5,8 +5,8 @@
 	"main": "app.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"start": "cross-env NODE_ENV=development nodemon app.js",
-		"start:prod": "cross-env NODE_ENV=production nodemon app.js"
+		"start": "cross-env NODE_ENV=development node app.js",
+		"start:prod": "cross-env NODE_ENV=production node app.js"
 	},
 	"author": "eudeamonism",
 	"license": "ISC",
@@ -32,3 +32,4 @@
 		"node": ">=14.0.0"
 	}
 }
+
