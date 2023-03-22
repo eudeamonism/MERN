@@ -1,17 +1,21 @@
-import {
-	createBrowserRouter,
-	RouterProvider,
-	useNavigate,
-} from 'react-router-dom';
+import React, { Suspense } from 'react';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
-import Users from './user/pages/Users';
+// import Users from './user/pages/Users';
+// import NewPlace from './places/pages/NewPlace';
+// import UserPlaces from './places/pages/UserPlaces';
+// import UpdatePlace from './places/pages/UpdatePlace';
+// import Auth from './user/pages/Auth';
 import Root from './shared/components/Navigation/Root';
-import UserPlaces from './places/pages/UserPlaces';
-import NewPlace from './places/pages/NewPlace';
-import UpdatePlace from './places/pages/UpdatePlace';
-import Auth from './user/pages/Auth';
 import { AuthContext } from './shared/context/auth-context';
 import { useAuth } from './shared/hooks/auth-hook';
+import LoadingSpinner from './shared/components/UIElements/LoadingSpinner';
+
+const Users = React.lazy(() => import('./user/pages/Users'));
+const NewPlace = React.lazy(() => import('./places/pages/NewPlace'));
+const UserPlaces = React.lazy(() => import('./places/pages/UserPlaces'));
+const UpdatePlace = React.lazy(() => import('./places/pages/UpdatePlace'));
+const Auth = React.lazy(() => import('./user/pages/Auth'));
 
 //Updated React Router Dom; We use function with parameters of an array filled with objects. Each object represents a route.
 const ourRouter = createBrowserRouter([
@@ -55,7 +59,7 @@ function App() {
 			{ path: '/auth', element: <Auth /> },
 		];
 	} else {
-		routes = {};
+		routes = [];
 	}
 
 	//we pass handlers and state in our provider which is connected to the whole application
@@ -69,7 +73,15 @@ function App() {
 				logout: logout,
 			}}
 		>
-			<RouterProvider router={ourRouter} />
+			<Suspense
+				fallback={
+					<div className="center">
+						<LoadingSpinner />
+					</div>
+				}
+			>
+				<RouterProvider router={ourRouter} routes={routes} />
+			</Suspense>
 		</AuthContext.Provider>
 	);
 }

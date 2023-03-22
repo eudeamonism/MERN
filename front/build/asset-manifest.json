@@ -1,0 +1,35 @@
+{
+  "files": {
+    "main.css": "/static/css/main.d5a98344.css",
+    "main.js": "/static/js/main.37422f8b.js",
+    "static/css/463.2dae4a93.chunk.css": "/static/css/463.2dae4a93.chunk.css",
+    "static/js/463.21821231.chunk.js": "/static/js/463.21821231.chunk.js",
+    "static/css/99.259312e9.chunk.css": "/static/css/99.259312e9.chunk.css",
+    "static/js/99.531487c2.chunk.js": "/static/js/99.531487c2.chunk.js",
+    "static/css/791.5755619b.chunk.css": "/static/css/791.5755619b.chunk.css",
+    "static/js/791.18939186.chunk.js": "/static/js/791.18939186.chunk.js",
+    "static/css/925.682e9c7c.chunk.css": "/static/css/925.682e9c7c.chunk.css",
+    "static/js/925.423f7ba8.chunk.js": "/static/js/925.423f7ba8.chunk.js",
+    "static/css/191.6f15a912.chunk.css": "/static/css/191.6f15a912.chunk.css",
+    "static/js/191.75b664d6.chunk.js": "/static/js/191.75b664d6.chunk.js",
+    "static/js/73.b16d6afc.chunk.js": "/static/js/73.b16d6afc.chunk.js",
+    "index.html": "/index.html",
+    "main.d5a98344.css.map": "/static/css/main.d5a98344.css.map",
+    "main.37422f8b.js.map": "/static/js/main.37422f8b.js.map",
+    "463.2dae4a93.chunk.css.map": "/static/css/463.2dae4a93.chunk.css.map",
+    "463.21821231.chunk.js.map": "/static/js/463.21821231.chunk.js.map",
+    "99.259312e9.chunk.css.map": "/static/css/99.259312e9.chunk.css.map",
+    "99.531487c2.chunk.js.map": "/static/js/99.531487c2.chunk.js.map",
+    "791.5755619b.chunk.css.map": "/static/css/791.5755619b.chunk.css.map",
+    "791.18939186.chunk.js.map": "/static/js/791.18939186.chunk.js.map",
+    "925.682e9c7c.chunk.css.map": "/static/css/925.682e9c7c.chunk.css.map",
+    "925.423f7ba8.chunk.js.map": "/static/js/925.423f7ba8.chunk.js.map",
+    "191.6f15a912.chunk.css.map": "/static/css/191.6f15a912.chunk.css.map",
+    "191.75b664d6.chunk.js.map": "/static/js/191.75b664d6.chunk.js.map",
+    "73.b16d6afc.chunk.js.map": "/static/js/73.b16d6afc.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d5a98344.css",
+    "static/js/main.37422f8b.js"
+  ]
+}

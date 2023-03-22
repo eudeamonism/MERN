@@ -21,7 +21,7 @@ const PlaceItem = (props) => {
 	const openMapHandler = () => setShowMap(true);
 	const closeMapHandler = () => setShowMap(false);
 
-	const showDeleteWarningHandler = () => {
+    const showDeleteWarningHandler = () => {
 		setShowConfirmModal(true);
 	};
 	const cancelDeleteWarningHandler = () => {
@@ -32,11 +32,11 @@ const PlaceItem = (props) => {
 		setShowConfirmModal(false);
 		try {
 			await sendRequest(
-				`http://localhost:5000/api/places/${props.id}`,
+				`${process.env.REACT_APP_BACK_PORT}places/${props.id}`,
 				'DELETE',
 				null,
 				{
-					Authorization: 'Bearer ' + auth.token
+					Authorization: 'Bearer ' + auth.token,
 				}
 			);
 
@@ -86,7 +86,7 @@ const PlaceItem = (props) => {
 					{isLoading && <LoadingSpinner asOverlay />}
 					<div className="place-item__image">
 						<img
-							src={`http://localhost:5000/${props.image}`}
+							src={`${process.env.REACT_APP_IMG_URL}${props.image}`}
 							alt={props.title}
 						/>
 					</div>
@@ -117,3 +117,4 @@ const PlaceItem = (props) => {
 };
 
 export default PlaceItem;
+
