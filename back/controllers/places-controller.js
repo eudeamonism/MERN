@@ -107,7 +107,7 @@ const createPlace = async (req, res, next) => {
 		return next(error);
 	}
 
-	console.log(user);
+
 	//Session must start and fire a transaction before two data are uploaded.
 	try {
 		//Part One
@@ -169,7 +169,7 @@ const updatePlace = async (req, res, next) => {
 	//We set Mongoose variable to destructured variables from req.body here
 	place.title = title;
 	place.description = description;
-	console.log(place.title, place.description);
+	
 	try {
 		await place.save();
 	} catch (err) {

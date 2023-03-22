@@ -5,8 +5,7 @@
 	"main": "app.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"start": "cross-env NODE_ENV=development node app.js",
-		"start:prod": "cross-env NODE_ENV=production node app.js"
+		"start": "node app.js"
 	},
 	"author": "eudeamonism",
 	"license": "ISC",
@@ -24,7 +23,6 @@
 		"uuid": "^9.0.0"
 	},
 	"devDependencies": {
-		"cross-env": "^7.0.3",
 		"nodemon": "^2.0.20",
 		"prettier": "^2.8.4"
 	},
@@ -32,4 +30,3 @@
 		"node": ">=14.0.0"
 	}
 }
-

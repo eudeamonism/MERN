@@ -13,7 +13,7 @@ async function getCoordinatesFromAddress(address) {
 		)}&format=json`
 	);
 	const data = response.data[0];
-	console.log(data);
+	
 
 	if (!data || data.status === 'ZERO_RESULTS') {
 		const error = new HttpError(
