@@ -1,0 +1,18 @@
+MERN/
+├── back/
+│   ├── app.js
+│   ├── package.json
+│   ├── ...
+├── front/
+│   ├── index.html
+│   ├── package.json
+│   ├── ...
+├── Procfile
+├── .gitignore
+└── ...
+
+
+cd back && npm install && npm run build && npm start
+
+
+cd front && npm run build
